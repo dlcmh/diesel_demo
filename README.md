@@ -15,3 +15,11 @@ In Cargo.toml:
 diesel = { version = "1.4.4", features = ["postgres"] }
 dotenv = "0.15.0"
 ```
+
+## 02 - Install Diesel CLI
+
+To install only for PostgreSQL:
+
+```
+cargo install diesel_cli --no-default-features --features postgres
+```
