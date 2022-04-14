@@ -68,3 +68,54 @@ DROP TABLE posts
 diesel migration run
 # Running migration 2022-04-14-015826_create_posts
 ```
+
+## 05 - Rust code to set up DB connection and `Post` model
+
+In src/lib.rs:
+
+```rust
+pub mod schema;
+pub mod models;
+
+// #[macro_use] required, otherwise:
+// - `models.rs` will have the following error (via `pub mod models`):
+//   cannot find derive macro `Queryable` in this scope
+//   consider importing this derive macro:
+//   diesel::Queryable
+// - `schema.rs` will have the following error (via `pub mod schema`):
+//   cannot find macro `table` in this scope
+//   consider importing this macro:
+//   diesel::table
+#[macro_use]
+extern crate diesel;
+extern crate dotenv;
+
+use diesel::prelude::*;
+use diesel::pg::PgConnection;
+use dotenv::dotenv;
+use std::env;
+
+pub fn establish_connection() -> PgConnection {
+    dotenv().ok();
+
+    let database_url = env::var("DATABASE_URL")
+        .expect("DATABASE_URL must be set");
+    PgConnection::establish(&database_url)
+        .expect(&format!("Error connecting to {}", database_url))
+}
+```
+
+In models.rs:
+
+```rust
+// #[derive(Queryable)]:
+// - generates code to load a Post struct from an SQL query
+// - order of fields on the Post struct must match order in `posts` table in schema.rs
+#[derive(Queryable)]
+pub struct Post {
+    pub id: i32,
+    pub title: String,
+    pub body: String,
+    pub published: bool,
+}
+```
