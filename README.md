@@ -38,3 +38,33 @@ diesel setup
 # Creating migrations directory at: /Users/dlcmh/projects/rust-apps/rust-diesel-getting-started/migrations
 # Creating database: diesel_demo
 ```
+
+## 04 - Diesel migration to create a table
+
+```sh
+diesel migration generate create_posts
+# Creating migrations/2022-04-14-015826_create_posts/up.sql
+# Creating migrations/2022-04-14-015826_create_posts/down.sql
+```
+
+In up.sql:
+
+```sql
+CREATE TABLE posts (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR NOT NULL,
+  body TEXT NOT NULL,
+  published BOOLEAN NOT NULL DEFAULT 'f'
+)
+```
+
+In down.sql:
+
+```sql
+DROP TABLE posts
+```
+
+```sh
+diesel migration run
+# Running migration 2022-04-14-015826_create_posts
+```
