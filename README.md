@@ -23,3 +23,18 @@ To install only for PostgreSQL:
 ```
 cargo install diesel_cli --no-default-features --features postgres
 ```
+
+## 03 - Set up Diesel for project
+
+In .env:
+
+```sh
+# DATABASE_URL=postgres://username:password@localhost/diesel_demo
+DATABASE_URL=postgres:///diesel_demo
+```
+
+```sh
+diesel setup
+# Creating migrations directory at: /Users/dlcmh/projects/rust-apps/rust-diesel-getting-started/migrations
+# Creating database: diesel_demo
+```
