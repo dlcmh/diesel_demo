@@ -157,3 +157,81 @@ fn main() {
 cargo run -q --bin show_posts
 # Displaying 0 posts
 ```
+
+## 07 - Rust code to create a post
+
+In models.rs:
+
+```rust
+use super::schema::posts;
+
+#[derive(Insertable)]
+#[table_name="posts"]
+pub struct NewPost<'a> {
+    pub title: &'a str,
+    pub body: &'a str,
+}
+```
+
+In lib.rs:
+
+```rust
+use self::models::{Post, NewPost};
+
+pub fn create_post<'a>(conn: &PgConnection, title: &'a str, body: &'a str) -> Post {
+    use schema::posts;
+
+    let new_post = NewPost {
+        title,
+        body,
+    };
+
+    diesel::insert_into(posts::table)
+        .values(&new_post)
+        .get_result(conn)
+        .expect("Error saving new post")
+}
+```
+
+In bin/write_post.rs:
+
+```rust
+extern crate diesel_demo;
+extern crate diesel;
+
+use self::diesel_demo::*;
+use std::io::{stdin, Read};
+
+fn main() {
+    let connection = establish_connection();
+
+    println!("What would you like your title to be?");
+    let mut title = String::new();
+    stdin().read_line(&mut title).unwrap();
+    let title = &title[..(title.len() - 1)]; // Drop the newline character
+    println!("\nOk! Let's write {} (Press {} when finished)\n", title, EOF);
+    let mut body = String::new();
+    stdin().read_to_string(&mut body).unwrap();
+
+    let post = create_post(&connection, title, &body);
+    println!("\nSaved draft {} with id {}", title, post.id);
+}
+
+#[cfg(not(windows))]
+const EOF: &'static str = "CTRL+D";
+
+#[cfg(windows)]
+const EOF: &'static str = "CTRL+Z";
+```
+
+```sh
+cargo run -q --bin write_post
+# What would you like your title to be?
+# first
+
+# Ok! Let's write first (Press CTRL+D when finished)
+
+# tentative
+# ^D
+# Saved draft first with id 1
+```
